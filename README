@@ -1,0 +1,42 @@
+Bài tập lớn C++
+Chatbot hỗ trợ đăng kí môn học
+
+Nhóm: Đỗ Quang Đạt, Nguyễn Thị Thu, Vương Xuân Thong
+
+Hướng tiến hành: Sử dụng kiến trúc Model/View(là MVC trong đó View = view + controller) của QT  
+Các hàm cần thiết:
+	select_response(): this function selects a response from a list of responses, there is a new helper function that was added to the program <code>shuffle, this 			new function shuffles a list of strings randomly after seed_random_generator() was called.
+	save_prev_input(): this function simply saves the current user input into a variable (<code>m_sPrevInput) before getting some new inputs from the user.
+	void save_prev_response(): the function <code>save_prev_response() saves the current response of the chatterbot before the bot have started to search 			responses for the current input, the current responsesis save in the varaible (m_sPrevResponse).
+	void save_prev_event(): this function simply saves the current event (<code>m_sEvent) into the variable (m_sPrevEvent). An event can be when the program has 			detected a null input from the user also, when the user repeats himself or even when the chatterbot makes repetitions has well etc.
+	void set_event(std::string str): sets the current event (<code>m_sEvent)
+	void save_input(): makes a backup of the current input (<code>m_sIntput) into the variable m_sInputBackup.
+	void set_input(std::string str): sets the current input (<code>m_sInput)
+	void restore_input(): restores the value of the current input (<code>m_sInput) that has been saved previously into the variable m_sInputBackup.
+	void print_response(): prints the response that has been selected by the <code>chat robot on the screen.
+	void preprocess_input(): this function does some preprocessing on the input like removing punctuations, redundant spaces charactes and also it converts the 			input to uppercase.
+	bool bot_repeat(): verifies if the chatterbot has started to repeat himself.
+	bool user_repeat(): Verifies if the user has repeated his self.
+	bool bot_understand(): Verifies that the bot understand the current user input (<code>m_sInput).
+	bool null_input(): Verifies if the current user input (<code>m_sInput) is null.
+	bool null_input_repetition(): Verifies if the user has repeated some null inputs.
+	bool user_want_to_quit(): Check to see if the user wants to quit the current session with the chatterbot.
+	bool same_event(): Verifies if the current event (<code>m_sEvent) is the same as the previous one (m_sPrevEvent).
+	bool no_response(): Checks to see if the program has no response for the current input.
+	bool same_input(): Verifies if the current input (<code>m_sInput) is the same as the previous one (m_sPrevInput).
+		bool similar_input(): Checks to see if the current and previous input are similar, two inputs are considered similar if one of them is the substring 			of the other one (e.g.: how are you and how are you doing would be considered similar because how are you is a substring of how are you doing.
+	void get_input(): Gets inputs from the user.
+	void respond(): handles all responses of the chat robot whether it is for events or simply the current user input. So, basically, these function controls the 			behaviour of the program.
+	find_match(): Finds responses for the current input.
+	void handle_repetition(): Handles repetitions made by the program.
+	void handle_user_repetition(): Handles repetitions made by the user.
+	void handle_event(std::string str): This function handles events in general.
+
++ Khi mà người dùng không biết nói gì -> chatbot cần mở đầu cuộc trò chuyện
++ Tìm câu trả lời gần nhất với câu hỏi thông qua các từ khoá(sử dụng bài toán dãy con chung dài nhất)
+	Nếu có -> kiểm tra độ khớp < 75% -> hỏi lại cho chắc câu hỏi, nếu không đúng câu hỏi -> đưa ra một vài gợi ý
+				   > 75% -> đưa ra câu trả lời -> chưa hài lòng -> tiếp tục hỏi
+
+Sử dụng QHash để lưu trữ knownledgeBase (câu hỏi + ds câu trả lời)
+Sử dung QList để lưu trữ danh sách câu trả lời
+Sử dung QString để lưu trữ câu hỏi và câu trả lời
