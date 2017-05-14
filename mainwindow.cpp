@@ -19,17 +19,13 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::on_pushButtonSend_clicked()
+void MainWindow::on_pushButton_clicked()
 {
     QString message = ui->textEdit->toPlainText();
     ui->textEdit->setText("");
-//    QTextStream(stdout) << message << endl;
 
     if(message.length() > 0){
         int row = model->rowCount();
-        model->insertRows(row, 1);
-        QModelIndex index = model->index(row);
         QStringList list = model->stringList();
         list << "YOU: " + message;
 

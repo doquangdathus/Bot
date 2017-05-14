@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>308</width>
-    <height>434</height>
+    <width>314</width>
+    <height>435</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,7 +93,7 @@ font-family: Helvetica;</string>
       <widget class="QTextEdit" name="textEdit"/>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonSend">
+      <widget class="QPushButton" name="pushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton{
 	background: green;
