@@ -18,11 +18,6 @@ public:
 
 private slots:
     void on_pushButton_clicked();
-
-    void on_pushButtonSend_clicked();
-
-    void on_pushButtonSend_pressed();
-
 private:
     Ui::MainWindow *ui;
     QStringListModel *model;
