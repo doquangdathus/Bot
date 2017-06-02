@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     list << "Bot: Hãy cho tôi biết tên được không?";
     currentProcess = 10;
     majors = listMajor();
+    listQuestion();
     model->setStringList(list);
     ui->listView->setModel(model);
 }
@@ -53,10 +54,19 @@ int MainWindow::longestString(QStringList a, QStringList b, int m, int n){
     return longest;
 }
 
-int MainWindow::handleUserQuestion(){
-    QStringList ls = listQuestion();
-
-    return 0;
+int MainWindow::handleUserQuestion(QString userQuestion){
+    QString userQuestionToAscii = converseToDownCaste(userQuestion);
+    int iMax = -1;
+    int maxLength = 0;
+    for(int i = 0; i < questions.length(); i++){
+        int sameChar = samechar(userQuestionToAscii, questions.at(i));
+        if(sameChar > maxLength){
+               maxLength = sameChar;
+               iMax = i;
+        }
+    }
+    qDebug() << maxLength << " " << iMax;
+    return iMax;
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -117,7 +127,51 @@ void MainWindow::on_pushButton_clicked()
                 }
             }
 
-        } else if(currentProcess == 99){
+        } else if(currentProcess == 13){
+                int pos = handleUserQuestion(message);
+                qDebug() << pos;
+                if(pos == -1){
+                    list <<  "Bot: Tôi chưa xác định được câu trả lời, bạn có câu hỏi khác không?";
+                } else {
+                  QString id = questionsProcessId.at(pos);
+                  currentProcess = id.toInt();
+                  QString userLop;
+                  QString userK;
+                  QString queryInString;
+                  if(userClass.length() == 5){
+                      userLop = userClass.mid(3, 2);
+                      userK = userClass.mid(1,2);
+                      queryInString = "select * from LichHoc where LichHoc.Nganh='" + userMajor
+                              + "' && LichHoc.Lop='" + userLop + "' && LichHoc.Khoa='" + userK + "'";
+
+                  } else {
+                      userK = userClass.mid(1,2);
+                      queryInString = "select * from LichHoc where LichHoc.Nganh='" + userMajor
+                              + "' && LichHoc.Khoa='" + userK + "'";
+                  }
+
+                  viewQuery(queryInString);
+                }
+
+        } else if(currentProcess == 14){
+            QString userLop;
+            QString userK;
+            QString queryInString;
+            if(userClass.length() == 5){
+                userLop = userClass.mid(3, 2);
+                userK = userClass.mid(1,2);
+                queryInString = "select * from LichHoc where LichHoc.Nganh='" + userMajor
+                        + "' && LichHoc.Lop='" + userLop + "' && LichHoc.Khoa='" + userK + "'";
+
+            } else {
+                userK = userClass.mid(1,2);
+                queryInString = "select * from LichHoc where LichHoc.Nganh='" + userMajor
+                        + "' && LichHoc.Khoa='" + userK + "'";
+            }
+
+            viewQuery(queryInString);
+        }
+        else if(currentProcess == 99){
             if(message.toLower().contains("co")|| message.toLower().contains("yes")||message.toLower().contains("tiep tuc")){
                  // Goi tiep ham xu ly
              }
@@ -150,7 +204,11 @@ void MainWindow::listQuestion(){
     QSqlQuery q(db);
     if(q.exec("select * from DSCauHoi")){
         while (q.next()) {
-            questions << q.value(1).toString() + " " + q.value(2);
+           QString question = q.value(1).toString();
+           QString questionProcessId = q.value(2).toString();
+
+           questions << question;
+           questionsProcessId << questionProcessId;
         }
     }
 }
@@ -186,3 +244,57 @@ QString MainWindow::converseToDownCaste(QString str){
 
     return str;
 }
+void MainWindow::viewQuery(QString q){
+
+    QSqlQueryModel *model2 = new QSqlQueryModel();
+    QSqlQuery query(db);
+    query.exec(q);
+    qDebug() << query.lastQuery();
+    model2->setQuery(query);
+    QTableView* tableView = new QTableView;
+    tableView->setModel(model2);
+    tableView->show();
+}
+QString MainWindow::processUserInput(QString userInput){
+    userInput = processDayInWeek(userInput);
+    userInput = processSubjectName(userInput);
+    return userInput;
+}
+
+QString MainWindow::processDayInWeek(QString userInput){
+    userInput.replace("thứ hai","thứ 2");
+    userInput.replace("thứ ba", "thứ 3");
+    userInput.replace("thứ tư", "thứ 4");
+    userInput.replace("thứ năm", "thứ 5");
+    userInput.replace("thứ sáu", "thứ 6");
+    userInput.replace("thứ bảy", "thứ 7");
+
+    userInput.replace("Thứ hai","thứ 2");
+    userInput.replace("Thứ ba", "thứ 3");
+    userInput.replace("Thứ tư", "thứ 4");
+    userInput.replace("Thứ năm", "thứ 5");
+    userInput.replace("Thứ sáu", "thứ 6");
+    userInput.replace("Thứ bảy", "thứ 7");
+
+    return userInput;
+}
+
+QString MainWindow::processSubjectName(QString userInput){
+    //Chuyen tu viet tat -> sang viet chuan CSDL
+    userInput.replace("gt1",  "Giải Tích 1");
+    userInput.replace("gt2",  "Giải Tích 2");
+    userInput.replace("gt3",  "Giải Tích 3");
+
+    userInput.replace("pttknc", "Phân tích thống kê nhiều chiều");
+    userInput.replace("PTTKNC", "Phân tích thống kê nhiều chiều");
+
+    userInput.replace("tkdgtt", "Thiết kế đánh giá thuật toán");
+    userInput.replace("TKDGTT", "Thiết kế đánh giá thuật toán");
+
+    userInput.replace("ktmt", "Kiến trúc máy tính");
+    userInput.replace("KTMT", "Kiến trúc máy tính");
+
+    userInput.replace("đstt", "Đại số tuyến tính");
+    userInput.replace("ĐSTT", "Đại số tuyến tính");
+}
+

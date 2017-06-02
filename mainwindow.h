@@ -5,6 +5,8 @@
 #include <QMainWindow>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlQueryModel>
+#include <QTableView>
 namespace Ui {
 class MainWindow;
 }
@@ -20,13 +22,17 @@ public:
     int max(int a, int b);
     int samechar(QString s1, QString s2);
     int longestString(QStringList a, QStringList b, int m, int n);
-    int handleUserQuestion();
+    int handleUserQuestion(QString userQuestion);
     int getUserName(QString userInput);
     int getUserClass(QString userInput);
     int getUserMajor();
     void listQuestion();
     QStringList listMajor();
     QString converseToDownCaste(QString str);
+    void viewQuery(QString query);
+    QString processDayInWeek(QString userInput);
+    QString processSubjectName(QString userInput);
+    QString processUserInput(QString userInput);
 
 private slots:
     void on_pushButton_clicked();
@@ -39,6 +45,7 @@ private:
     QString userClass;
     QString userMajor;
     QStringList majors;
+    QStringList questionsProcessId;
     QStringList questions;
 };
 
