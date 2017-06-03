@@ -9,6 +9,10 @@
 #include <QTableView>
 #include <QKeyEvent>
 #include <QTextEdit>
+#include <QMenu>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QSqlError>
 namespace Ui {
 class MainWindow;
 }
@@ -41,6 +45,10 @@ public:
 
 private slots:
     void process();
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_3_clicked();
+
 private:
     Ui::MainWindow *ui;
     QStringListModel *model;

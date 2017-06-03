@@ -388,3 +388,35 @@ void MainWindow::keyPressEvent(QKeyEvent * event){
     }
 }
 
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    userName = "";
+    userClass = "";
+    userMajor = "";
+
+    currentProcess = 10;
+    QStringList ls = model->stringList();
+    ls = QStringList();
+    ls << "Bot: Chào mừng đến với chatbot hỗ trợ đăng ký môn học :))";
+    ls << "Bot: Hãy cho tôi biết tên được không?";
+    model->setStringList(ls);
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    QMessageBox::information(this, "Hướng dẫn import file lịch học vào CSDL", "B1: chuyển lịch học sang dạng file .csv \n B2: Chọn file .csv vừa chuyển từ hệ thống, sau khi xong bước này coi như là hoàn thành");
+    QSqlQuery q(db);
+    QString filePath = QFileDialog::getOpenFileName(this);
+    if(filePath.trimmed().length() == 0 || !filePath.contains(".csv")){
+        QMessageBox::information(this, "Thất bại", "Quá trình import lịch học đã bị huỷ do bạn chưa chọn đúng file theo yêu cầu");
+    } else {
+        q.exec("DELETE FROM `LichHoc` WHERE 1");
+        q.exec("load data infile '" + filePath + "' into table LichHoc fields terminated by ',' enclosed by '\"' lines terminated by '\n' (LichHoc.MMH, LichHoc.TMH, LichHoc.SoTC, LichHoc.Khoa, LichHoc.Nganh, LichHoc.Lop, LichHoc.SoSV, LichHoc.KhoaTrucThuoc, LichHoc.MaLopMH, LichHoc.Thu, LichHoc.Tiet, LichHoc.SoCho, LichHoc.GiangDuong)");
+        if(q.lastError().text().trimmed().length() == 0){
+            QMessageBox::information(this, "Thành công", "Bạn đã thêm thành công thời khoá biểu mới vào CSDL");
+        } else {
+            QMessageBox::information(this, "Lỗi", q.lastError().text());
+        }
+    }
+}
