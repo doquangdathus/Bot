@@ -68,6 +68,7 @@ int MainWindow::handleUserQuestion(QString userQuestion){
     qDebug() << maxLength << " " << iMax;
     return iMax;
 }
+//Thay the cho viec bam nut
 void MainWindow::process(){
     QString message = ui->textEdit->toPlainText();
     ui->textEdit->setText("");
@@ -388,7 +389,7 @@ void MainWindow::keyPressEvent(QKeyEvent * event){
     }
 }
 
-
+//reset chat
 void MainWindow::on_pushButton_2_clicked()
 {
     userName = "";
@@ -403,6 +404,7 @@ void MainWindow::on_pushButton_2_clicked()
     model->setStringList(ls);
 }
 
+//import TKB vao CSDL
 void MainWindow::on_pushButton_3_clicked()
 {
     QMessageBox::information(this, "Hướng dẫn import file lịch học vào CSDL", "B1: chuyển lịch học sang dạng file .csv \n B2: Chọn file .csv vừa chuyển từ hệ thống, sau khi xong bước này coi như là hoàn thành");
