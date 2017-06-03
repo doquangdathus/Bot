@@ -75,31 +75,35 @@ void MainWindow::on_pushButton_clicked()
     ui->textEdit->setText("");
     QStringList list = model->stringList();
     list << "YOU: " + message;
+    model->setStringList(list);
     if(message.length() > 0){
 
         if(currentProcess == 10){
-            if(message.contains("đúng") || message.contains("chuẩn")){
-                currentProcess = 11;
-                list << "Bot: Xin chào " + userName;
-                list  << "Bot: Bạn học khoa nào thế?";
+            userName = getUserName(message);
+            if(userName.length() == 0){
+                list << "Bot: Có phải bạn không viết hoa tên của mình không? Tôi không thể nhận ra được tên của bạn, hãy viết hoa tên của mình: ví dụ như Quang Đạt :))";
             } else {
-                QStringList ls = message.split(" ");
-                userName = ls.at(ls.length() - 1);
-                list << "Bot: Tên của bạn có phải là " + userName + " ?";
+                currentProcess = 11;
+                list << "Bot: Chào " + userName + ", rất vui được làm quen với bạn!!";
+                list << "Bot: Thế bạn đang học ngành nào trong khoa Toán-Cơ-Tin của trường vậy?";
             }
+
         } else if(currentProcess == 11){
               if(message.toLower().contains("đúng")||message.toLower().contains("chính xác")){
                   currentProcess = 12;
                   list << "Bot: Vậy là bạn học khoa: " + userMajor;
                   if(userMajor.contains("MT&KHTT")){
                       list << "Bot: Lớp MT&KHTT có 2 lớp, là A2 và A3, bạn học lớp nào thế? Có phải K59A2 không?";
+                      currentProcess = 121;
                   } else {
                       list << "Bot:Thế bạn là K59 phải không?";
+                      currentProcess = 122;
                   }
               } else {
-
+                  QString tempMess = message.toLower();
                   for(int i = 0; i < majors.length(); i++){
-                      if(message.contains(majors.at(i))){
+                      QString major = majors.at(i);
+                      if(message.contains(major.toLower())){
                           userMajor = majors.at(i);
                           break;
                       }
@@ -127,7 +131,50 @@ void MainWindow::on_pushButton_clicked()
                 }
             }
 
-        } else if(currentProcess == 13){
+        } else if(currentProcess == 121){
+            if(message.contains("đúng")){
+                userClass = "K59A2";
+                list << "Bot: 0.0, tôi cũng đã giúp đỡ rất nhiều bạn ở K59A2";
+                list << "Bot: Bạn cần tôi tư vấn gì về lịch học nào?";
+                currentProcess = 13;
+            } else {
+                currentProcess = 12;
+                if(getUserClass(message) == -1){
+                    list << "Bot: Có vẻ như bạn đã nhập sai lớp? Hiện tại trong thời khoá biểu có các lớp của K57-K61";
+                } else {
+                    int pos = getUserClass(message);
+                    QStringList l = message.split(" ");
+                    if(userMajor.contains("MT&KHTT")){
+                        userClass = l.at(pos).mid(0, 5);
+                    } else {
+                        userClass = l.at(pos).mid(0, 3);
+                    }
+                    list << "Bot: Lớp của bạn có phải là " + userClass;
+                }
+            }
+        }else if(currentProcess == 122){
+            if(message.contains("đúng")){
+                userClass = "K59";
+                list << "Bot: 0.0, tôi cũng đã giúp đỡ rất nhiều các bạn K59";
+                list << "Bot: Bạn cần tôi tư vấn gì về lịch học nào?";
+                currentProcess = 13;
+            } else {
+                currentProcess = 12;
+                if(getUserClass(message) == -1){
+                    list << "Bot: Có vẻ như bạn đã nhập sai lớp? Hiện tại trong thời khoá biểu có các lớp của K57-K61";
+                } else {
+                    int pos = getUserClass(message);
+                    QStringList l = message.split(" ");
+                    if(userMajor.contains("MT&KHTT")){
+                        userClass = l.at(pos).mid(0, 5);
+                    } else {
+                        userClass = l.at(pos).mid(0, 3);
+                    }
+                    list << "Bot: Lớp của bạn có phải là " + userClass;
+                }
+            }
+        }
+        else if(currentProcess == 13){
                 int pos = handleUserQuestion(message);
                 qDebug() << pos;
                 if(pos == -1){
@@ -182,12 +229,32 @@ void MainWindow::on_pushButton_clicked()
     } else {
         list << "Bot: Tôi không hiểu bạn đang muốn nói gì?";
     }
-
+    delay(1);
     model->setStringList(list);
 }
-int MainWindow::getUserName(QString userInput){
-    QRegExp rx("[^A-Za-z]");
-    return rx.indexIn(userInput);
+QString MainWindow::getUserName(QString userInput){
+    QRegExp rx("^[A-Z]|Đ");
+    QString name;
+    QStringList ls = userInput.split(" ");
+    for(int i = 0; i < ls.size(); i++){
+        if(rx.indexIn(ls.at(i)) != -1){
+            name += ls.at(i) + " ";
+        }
+    }
+    name = name.trimmed();
+    if(name.split(" ").length() == 1){
+        return name;
+    } else if(name.split(" ").length() == 2 && !name.contains("Anh")){
+        return name.split(" ").at(1);
+    } else if(name.split(" ").length() == 2 && !name.contains("Anh")){
+        return name;
+    } else if(name.contains("Anh")){
+        QStringList ls = name.split(" ");
+        name = ls.at(ls.length() - 2) + " " + ls.at(ls.length() - 1);
+        return name;
+    } else {
+        return name;
+    }
 }
 int MainWindow::getUserClass(QString userInput){
     QRegExp rx(".*K[5-6]");
@@ -296,5 +363,15 @@ QString MainWindow::processSubjectName(QString userInput){
 
     userInput.replace("đstt", "Đại số tuyến tính");
     userInput.replace("ĐSTT", "Đại số tuyến tính");
+
+    userInput.replace("số tc", "số tín chỉ");
+    userInput.replace("tc", "số tín chỉ");
+}
+
+void MainWindow::delay(int seconds)
+{
+    QTime dieTime= QTime::currentTime().addSecs(seconds);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 

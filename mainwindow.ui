@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>314</width>
-    <height>435</height>
+    <width>265</width>
+    <height>424</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,11 +20,14 @@
    <widget class="QListView" name="listView">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>50</y>
+      <x>0</x>
+      <y>30</y>
       <width>261</width>
-      <height>301</height>
+      <height>311</height>
      </rect>
+    </property>
+    <property name="flow">
+     <enum>QListView::TopToBottom</enum>
     </property>
     <property name="isWrapping" stdset="0">
      <bool>false</bool>
@@ -32,11 +35,14 @@
     <property name="wordWrap">
      <bool>true</bool>
     </property>
+    <property name="selectionRectVisible">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>0</x>
       <y>0</y>
       <width>261</width>
       <height>31</height>
@@ -82,8 +88,8 @@ font-family: Helvetica;</string>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>360</y>
+      <x>0</x>
+      <y>350</y>
       <width>261</width>
       <height>31</height>
      </rect>
