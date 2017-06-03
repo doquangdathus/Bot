@@ -24,12 +24,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    customqtextedit.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    customqtextedit.h
 
 FORMS    += mainwindow.ui
 
 RESOURCES += \
     image.qrc \
-    resource.qrc
+    resource.qrc \
+    customqtextedit.qrc

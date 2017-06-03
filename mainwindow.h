@@ -7,6 +7,8 @@
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QTableView>
+#include <QKeyEvent>
+#include <QTextEdit>
 namespace Ui {
 class MainWindow;
 }
@@ -35,9 +37,10 @@ public:
     QString processUserInput(QString userInput);
 
     void delay(int seconds);
+    void keyPressEvent(QKeyEvent *);
 
 private slots:
-    void on_pushButton_clicked();
+    void process();
 private:
     Ui::MainWindow *ui;
     QStringListModel *model;

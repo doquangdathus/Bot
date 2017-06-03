@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    connect(ui->textEdit, SIGNAL(enterPress()), this, SLOT(process()));
     model = new QStringListModel(this);
     QStringList list;
     list << "Bot: Chào mừng đến với chatbot hỗ trợ đăng ký môn học :))";
@@ -68,9 +68,7 @@ int MainWindow::handleUserQuestion(QString userQuestion){
     qDebug() << maxLength << " " << iMax;
     return iMax;
 }
-
-void MainWindow::on_pushButton_clicked()
-{
+void MainWindow::process(){
     QString message = ui->textEdit->toPlainText();
     ui->textEdit->setText("");
     QStringList list = model->stringList();
@@ -101,14 +99,20 @@ void MainWindow::on_pushButton_clicked()
                   }
               } else {
                   QString tempMess = message.toLower();
+                  QString listMajorsInString;
+                  qDebug() << tempMess;
                   for(int i = 0; i < majors.length(); i++){
                       QString major = majors.at(i);
-                      if(message.contains(major.toLower())){
+                      qDebug() << major.toLower();
+                      listMajorsInString += major + ", ";
+                      if(tempMess.contains(major.toLower())){
                           userMajor = majors.at(i);
                           break;
                       }
                   }
-
+                  if(userMajor.length() == 0){
+                      list << "Bot: Chuyên ngành của bạn hiện không có trong lịch học? Cac nganh hoc hien tai co trong lich hoc la: " + listMajorsInString;
+                  }
                   list << "Bot: Thế chuyên ngành của bạn là " + userMajor + " có phải không?";
               }
         } else if(currentProcess == 12){
@@ -232,6 +236,7 @@ void MainWindow::on_pushButton_clicked()
     delay(1);
     model->setStringList(list);
 }
+
 QString MainWindow::getUserName(QString userInput){
     QRegExp rx("^[A-Z]|Đ");
     QString name;
@@ -373,5 +378,13 @@ void MainWindow::delay(int seconds)
     QTime dieTime= QTime::currentTime().addSecs(seconds);
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent * event){
+    if(event->key() == Qt::Key_Return){
+        qDebug()<< "Enter";
+    } else {
+
+    }
 }
 
