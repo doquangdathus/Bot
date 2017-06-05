@@ -13,6 +13,8 @@ public:
     CustomQTextEdit(QWidget *parent = 0);
 signals:
     void enterPress();
+    void upPress();
+    void downPress();
 protected:
     void keyPressEvent(QKeyEvent *event);
 };

@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
     create_connect();
     MainWindow w;
     w.setDatabase(db);
+    //qDebug() << w.queryString(w.parameter("xoá môn Tối ưu hoá"));
+    //w.handleUserQuestion("xoá môn");
     w.show();
 
     return a.exec();
