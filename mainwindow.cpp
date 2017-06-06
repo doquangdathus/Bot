@@ -208,6 +208,21 @@ void MainWindow::process(){
                            addSubjects(sql);
                            setCurrenSheduleModel();
                            setUserFreeTime(getUserFreeTime());
+
+                           list << "Bot: Thêm môn thành công!!";
+                           QStringList warningWrongMajorMessage = warningWrongMajor(userSubjects);
+                           QString warningWrongCreditsMessage = warningNumberCredit(userSubjects);
+
+                           if(warningWrongMajorMessage.size() > 0){
+                               list << "Bot: Có một số môn nằm ngoài chương trình đào tạo, bạn có chắc đăng kí những môn này chứ?";
+                               foreach (QString s, warningWrongMajorMessage) {
+                                   list << "Bot: " + s;
+                               }
+                           }
+
+                           if(warningWrongCreditsMessage.length() != 0){
+                               list << "Bot: " + warningWrongCreditsMessage;
+                           }
                        }
                        break;
                    }
@@ -223,6 +238,21 @@ void MainWindow::process(){
                            deleteSubjects(sql);
                            setCurrenSheduleModel();
                            setUserFreeTime(getUserFreeTime());
+
+                           list << "Bot: Xoá môn thành công!!";
+                           QStringList warningWrongMajorMessage = warningWrongMajor(userSubjects);
+                           QString warningWrongCreditsMessage = warningNumberCredit(userSubjects);
+
+                           if(warningWrongMajorMessage.size() > 0){
+                               list << "Bot: Có một số môn nằm ngoài chương trình đào tạo, bạn có chắc đăng kí những môn này chứ?";
+                               foreach (QString s, warningWrongMajorMessage) {
+                                   list << "Bot: " + s;
+                               }
+                           }
+
+                           if(warningWrongCreditsMessage.length() != 0){
+                               list << "Bot: " + warningWrongCreditsMessage;
+                           }
                        }
                        break;
                    }
@@ -456,6 +486,8 @@ void MainWindow::on_pushButton_2_clicked()
     QStringListModel *listModel = new QStringListModel;
 
     ui->listViewFreeTime->setModel(listModel);
+
+    change = false;
 }
 
 //import TKB vao CSDL
@@ -734,6 +766,7 @@ void MainWindow::addSubjects(QString sql){
     change = true;
     QStringList temp;
     QSqlQuery q(db);
+    qDebug() << sql;
     if(q.exec(sql)){
         while(q.next()){
             temp << q.value(0).toString();
@@ -1042,5 +1075,41 @@ bool MainWindow::saveResult()
     } else {
         QMessageBox::information(this, "Lỗi không lưu được file", "");
         return false;
+    }
+}
+
+QStringList MainWindow::warningWrongMajor(QStringList userIdSubject)
+{
+    QStringList ls;
+    QSqlQuery q(db);
+    if(q.exec("Select LichHoc.Nganh, LichHoc.TMH from LichHoc where LichHoc.ID in " + getListIdInString(userIdSubject))){
+        while(q.next()){
+            QString subjectMajor = q.value(0).toString();
+            QString subject = q.value(1).toString();
+            if(!subjectMajor.toLower().contains(userMajor.toLower()) != 0)
+               ls << subject + " " + subjectMajor;
+        }
+    }
+    return ls;
+}
+
+QString MainWindow::warningNumberCredit(QStringList userIdSubject)
+{
+    QSqlQuery q(db);
+
+    q.exec("select DISTINCT LichHoc.MMH, LichHoc.SoTc from LichHoc where LichHoc.ID in" + getListIdInString(userSubjects));
+
+    int totalCredit = 0;
+
+    while(q.next()){
+        totalCredit += q.value(1).toString().toInt();
+    }
+    if(totalCredit < 14){
+        return "Số lượng tín chỉ của bạn hiện tại là " + QString::number(totalCredit) + " quá ít trong một kì, tối thiểu là 14 tín";
+    } else if(totalCredit > 30){
+        return "Số lượng tín chỉ của bạn hiện tại là " + QString::number(totalCredit) + " quá nhiều trong một kì, trung bình là 20-23 tín";
+    }
+    else {
+        return "";
     }
 }

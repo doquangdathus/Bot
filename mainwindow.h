@@ -75,6 +75,8 @@ public:
     QString changeMarkPrinciple(QString message);
     QString summary();
     bool saveResult();
+    QStringList warningWrongMajor(QStringList userIdSubject);
+    QString warningNumberCredit(QStringList userIdSubject);
 
 private slots:
     void process();
