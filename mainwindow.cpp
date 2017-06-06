@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->textEdit, SIGNAL(downPress()), this, SLOT(processDownPress()));
     model = new QStringListModel(this);
     QStringList list;
-    list << "Bot: Chào mừng đến với chatbot hỗ trợ đăng ký môn học :))";
+    list << "Bot: Chào mừng đến với chatbot hỗ trợ đăng ký môn học :)) Nếu bạn muốn kết thúc cuộc trò chuyện, gõ bye/pp/tạm biệt để kết thúc";
     list << "Bot: Hãy cho tôi biết tên được không?";
     userClass = "K59A2";
     userMajor = "MT&KHTT";
@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     buildHashMajorClass();
     model->setStringList(list);
     ui->listView->setModel(model);
+
+    change = false;
 
     oldMark << "òa" << "óa" << "ỏa" << "õa" << "ọa" << "òe" << "óe" << "ỏe" << "õe" << "ọe" << "ùy" << "úy" << "ủy" << "ũy" << "ụy";
     newMark << "oà" << "oá" << "oả" << "oã" << "oạ" << "oè" << "oé" << "oẻ" << "oẽ" << "oẹ" << "uỳ" << "uý" << "uỷ" << "uỹ" << "uỵ";
@@ -86,9 +88,21 @@ void MainWindow::process(){
     lastIndexUserMessage ++;
     currIndexUserMessage ++;
     model->setStringList(list);
+    bool reset = false;
     if(message.length() > 0){
-
-        if(currentProcess == 10){
+        if(message.toLower().contains("bye")|message.toLower().contains("Tạm biệt")|message.toLower().contains("pp")){
+            if(change){
+                list << "Bot: Có vẻ như bạn đã có một vài thay đổi trong lịch học? Bạn có muốn lưu lại kết quả không?";
+                currentProcess = 99;
+                model->setStringList(list);
+            } else {
+                list << "Bot: Rất vui được giúp đỡ bạn, mong rằng sự giúp đỡ của tôi là hữu ích";
+                model->setStringList(list);
+                delay(2);
+                reset = true;
+                on_pushButton_2_clicked();
+            }
+        }else if(currentProcess == 10){
             userName = getUserName(message);
             if(userName.length() == 0){
                 list << "Bot: Có phải bạn không viết hoa tên của mình không? Tôi không thể nhận ra được tên của bạn, hãy viết hoa tên của mình: ví dụ như Quang Đạt :))";
@@ -152,6 +166,7 @@ void MainWindow::process(){
                 qDebug() << pos;
                 if(pos == -1){
                     list <<  "Bot: Tôi chưa xác định được câu trả lời, bạn có câu hỏi khác không?";
+
                 } else {
                    QString idInString = questionsProcessId.at(pos);
                    int id = idInString.toInt();
@@ -218,19 +233,26 @@ void MainWindow::process(){
                 }
 
         } else if(currentProcess == 99){
-            if(message.toLower().contains("co")|| message.toLower().contains("yes")||message.toLower().contains("tiep tuc")){
-                 // Goi tiep ham xu ly
+            if(confirm(message)){
+                 if(saveResult()){
+                     "Bot: File của bạn đã được lưu lại trong shedule.txt, hẹn gặp lại bạn vào lần sau";
+                     reset = true;
+                     delay(2);
+                     on_pushButton_2_clicked();
+                 }
              }
              else{
-                 list << "Bot: Vay hen gap lai ban dip khac nhe";
+                 list << "Bot: Vậy hẹn bạn dịp khác nhé :))";
              }
         }
     } else {
         list << "Bot: Tôi không hiểu bạn đang muốn nói gì?";
     }
-    delay(1);
-    model->setStringList(list);
-    ui->listView->scrollToBottom();
+    if(!reset){
+        delay(1);
+        model->setStringList(list);
+        ui->listView->scrollToBottom();
+    }
 }
 
 void MainWindow::processUpPress()
@@ -424,6 +446,16 @@ void MainWindow::on_pushButton_2_clicked()
     ls << "Bot: Chào mừng đến với chatbot hỗ trợ đăng ký môn học :))";
     ls << "Bot: Hãy cho tôi biết tên được không?";
     model->setStringList(ls);
+
+    QSqlQueryModel *sqlModel = new QSqlQueryModel;
+
+    ui->tableViewCurrenShedule->setModel(sqlModel);
+    ui->tableViewFirstShedule->setModel(sqlModel);
+    ui->tableViewQuery->setModel(sqlModel);
+
+    QStringListModel *listModel = new QStringListModel;
+
+    ui->listViewFreeTime->setModel(listModel);
 }
 
 //import TKB vao CSDL
@@ -449,7 +481,7 @@ int MainWindow::confirm(QString userInput){
     userInput = converseToDownCaste(userInput);
     if(userInput.contains("dung") | userInput.contains("uk")
             | userInput.contains("chuan") | userInput.contains("phai")
-            |userInput.contains("chinh xac")){
+            |userInput.contains("chinh xac") | userInput.contains("co")){
         return 1;
     } else if(userInput.contains("sai roi") | userInput.contains("khong")){
         return -1;
@@ -651,7 +683,6 @@ QString MainWindow::queryString(QHash<QString, QStringList> par){
 void MainWindow::getfirstSubjects(){
     // lấy ra tất cả các môn học ban đầu
     QString sql ="";
-    QString tempVar = userClass;
     QString clas = userClass.mid(3, userClass.length() - 3);
     QString k = userClass.mid(1, 2);
     sql = "SELECT * FROM LichHoc WHERE LichHoc.Lop like '"+clas+"' AND LichHoc.Khoa = " + k ;
@@ -685,6 +716,7 @@ void MainWindow::getcurrentSubjects(){
 }
 void MainWindow::deleteSubjects(QString sql){
     qDebug() <<sql;
+    change = true;
     QStringList temp;
     QSqlQuery q(db);
     if(q.exec(sql)){
@@ -699,6 +731,7 @@ void MainWindow::deleteSubjects(QString sql){
 
 }
 void MainWindow::addSubjects(QString sql){
+    change = true;
     QStringList temp;
     QSqlQuery q(db);
     if(q.exec(sql)){
@@ -955,4 +988,59 @@ QString MainWindow::summary()
     s.append("trong đó ngày nhiều nhất là: " + dayMax + " với " + QString::number(max) + " giờ \n");
     s.append("ngày ít nhất là: " + dayMin + " với " + QString::number(min) + " giờ \n");
     return s;
+}
+
+bool MainWindow::saveResult()
+{
+    QSqlQuery q(db);
+    QString shedule[9][11];
+    if(q.exec("SELECT LichHoc.Thu, LichHoc.Tiet, LichHoc.TMH FROM LichHoc WHERE LichHoc.ID in " + getListIdInString(userSubjects))){
+
+        while(q.next()){
+            QString day = q.value(0).toString();
+            QString hour = q.value(1).toString();
+            QString subject = q.value(2).toString();
+            if(!day.contains("x") && !hour.contains("Tự chọn")){
+                int row = day.toInt();
+                QStringList hs = hour.split("-");
+                QString beginString = hs.at(0);
+                QString endString = hs.at(1);
+                int begin = beginString.toInt();
+                int end = endString.toInt();
+
+                for(int i = begin; i <= end; i++){
+                    shedule[row][i] = subject;
+                }
+            }
+        }
+
+        QString fileName = "shedule.txt";
+        QFile file(fileName);
+
+        if(file.open(QIODevice::ReadWrite)){
+            QTextStream stream(&file);
+            stream.flush();
+            for(int j = 1; j <= 10; j++){
+                QString s = "Tiet " + QString::number(j-1) + "  ";
+                for(int i = 2; i <= 8; i++){
+                    if(shedule[i][j] > 15){
+                        shedule[i][j] = shedule[i][j].mid(0, 12) + "...";
+                    }
+                    if(shedule[i][j].length() == 0) shedule[i][j] = "...............";
+
+                    s += shedule[i][j] + "       ";
+                }
+                stream << s << "\n";
+            }
+            stream.flush();
+            QMessageBox::information(this, "Lưu file thành công", "");
+            return true;
+        } else {
+            QMessageBox::information(this, "Lỗi không lưu được file", "");
+            return false;
+        }
+    } else {
+        QMessageBox::information(this, "Lỗi không lưu được file", "");
+        return false;
+    }
 }

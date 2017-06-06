@@ -74,7 +74,7 @@ public:
 
     QString changeMarkPrinciple(QString message);
     QString summary();
-
+    bool saveResult();
 
 private slots:
     void process();
@@ -106,6 +106,8 @@ private:
 
     int lastIndexUserMessage;
     int currIndexUserMessage;
+
+    bool change;
 };
 
 #endif // MAINWINDOW_H
