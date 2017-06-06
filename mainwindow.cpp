@@ -22,7 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     buildHashMajorClass();
     model->setStringList(list);
     ui->listView->setModel(model);
-
+    currIndexUserMessage = 0;
+    lastIndexUserMessage = 0;
     change = false;
 
     oldMark << "òa" << "óa" << "ỏa" << "õa" << "ọa" << "òe" << "óe" << "ỏe" << "õe" << "ọe" << "ùy" << "úy" << "ủy" << "ũy" << "ụy";
@@ -287,6 +288,7 @@ void MainWindow::process(){
 
 void MainWindow::processUpPress()
 {
+    qDebug() << currIndexUserMessage << " " << lastIndexUserMessage;
     if(currIndexUserMessage > 0){
         currIndexUserMessage --;
         QStringList ls = model->stringList();
@@ -305,6 +307,7 @@ void MainWindow::processUpPress()
 
 void MainWindow::processDownPress()
 {
+    qDebug() << currIndexUserMessage << " " << lastIndexUserMessage;
     if(currIndexUserMessage < lastIndexUserMessage){
         currIndexUserMessage ++;
         QStringList ls = model->stringList();
