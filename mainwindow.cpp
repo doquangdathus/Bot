@@ -190,6 +190,7 @@ void MainWindow::process(){
                    case 4:{
                        QString sql = generateQueryString(queryString(parameter(message)));
                        QSqlQuery q(db);
+                       qDebug() << sql;
                        if(q.exec(sql)){
                            QSqlQueryModel *userQueryModel = new QSqlQueryModel();
                            userQueryModel->setQuery(q);
@@ -537,7 +538,7 @@ void MainWindow::buildHashMajorClass(){
     }
 }
 QHash<QString, QStringList> MainWindow::parameter(QString string){
-    string = changeMarkPrinciple(string);
+    QString tmp = changeMarkPrinciple(string);
     QSet<QString> monhoc;
     QSet<QString> tenmon;
     QSet<QString> sotin;
@@ -551,7 +552,7 @@ QHash<QString, QStringList> MainWindow::parameter(QString string){
     QSet<QString> tiethoc;
     QSet<QString> solgcho;
     QSet<QString> tengiangduong;
-
+    qDebug() << string;
     QHash<QString, QStringList> para;
     QSqlQuery query(db);
     query.exec("Select * from LichHoc");
@@ -592,7 +593,7 @@ QHash<QString, QStringList> MainWindow::parameter(QString string){
         }
     }
     for (QString s: tenmon){
-        if(string.contains(s)){
+        if(string.contains(s) | tmp.contains(s)){
             tm << s;
         }
     }
